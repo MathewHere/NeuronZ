@@ -190,8 +190,12 @@
       .detail .icon { width: 38px; height: 38px; flex: 0 0 auto; margin: 0; color: #b8d1ff; background: #343b49; }
       .detail small { display: block; margin-bottom: 3px; color: #9aa0a6; font-size: 11px; }
       .contact-panel { padding: 28px; border-radius: 20px; color: var(--ink); background: white; }
+      .contact-panel.is-success { min-height: 500px; display: grid; place-items: center; }
       .contact-panel h3 { margin-bottom: 5px; font-size: 21px; }
       .contact-panel > p { margin-bottom: 20px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+      .contact-success { max-width: 470px; padding: 30px 12px; text-align: center; }
+      .contact-success .success-icon { width: 64px; height: 64px; display: grid; place-items: center; margin: 0 auto 22px; border-radius: 50%; color: var(--green); background: #e6f4ea; font-size: 32px; font-weight: 700; }
+      .contact-success h3 { margin: 0; font-size: clamp(28px, 3vw, 39px); line-height: 1.25; letter-spacing: -.04em; }
       .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
       .field { display: grid; gap: 7px; }
       .field.full { grid-column: 1 / -1; }
@@ -514,26 +518,32 @@
             </div>
           </div>
           <div class="contact-panel" id="contact-form">
-            <h3>Tell us what you need</h3>
-            <p>Share a few details and we’ll be in touch. Complete the spam check and send your message directly from this form.</p>
-            <form id="enquiry-form" action="https://api.web3forms.com/submit" method="POST">
-              <input type="hidden" name="access_key" value="d2bf1e74-53fe-479f-8f3b-5d64835a80fb">
-              <input type="hidden" name="subject" value="New enquiry from NeuronZ Limited website">
-              <input type="hidden" name="from_name" value="NeuronZ Limited website">
-              <input type="checkbox" name="botcheck" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true">
-              <div class="form-grid">
-                <div class="field"><label for="name">Your name</label><input id="name" name="name" autocomplete="name" required placeholder="Jane Smith"></div>
-                <div class="field"><label for="email">Your email</label><input id="email" name="email" type="email" autocomplete="email" required placeholder="jane@example.com"></div>
-                <div class="field full"><label for="message">How can we help?</label><textarea id="message" name="message" required placeholder="I’m interested in the £500 website offer..."></textarea></div>
-                <div class="field full">
-                  <label>Spam protection</label>
-                  <div class="h-captcha" data-captcha="true"></div>
+            <div id="contact-form-content">
+              <h3>Tell us what you need</h3>
+              <p>Share a few details and we’ll be in touch. Complete the spam check and send your message directly from this form.</p>
+              <form id="enquiry-form" action="https://api.web3forms.com/submit" method="POST">
+                <input type="hidden" name="access_key" value="d2bf1e74-53fe-479f-8f3b-5d64835a80fb">
+                <input type="hidden" name="subject" value="New enquiry from NeuronZ Limited website">
+                <input type="hidden" name="from_name" value="NeuronZ Limited website">
+                <input type="checkbox" name="botcheck" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true">
+                <div class="form-grid">
+                  <div class="field"><label for="name">Your name</label><input id="name" name="name" autocomplete="name" required placeholder="Jane Smith"></div>
+                  <div class="field"><label for="email">Your email</label><input id="email" name="email" type="email" autocomplete="email" required placeholder="jane@example.com"></div>
+                  <div class="field full"><label for="message">How can we help?</label><textarea id="message" name="message" required placeholder="I’m interested in the £500 website offer..."></textarea></div>
+                  <div class="field full">
+                    <label>Spam protection</label>
+                    <div class="h-captcha" data-captcha="true"></div>
+                  </div>
                 </div>
-              </div>
-              <button class="button" type="submit">Send enquiry <span aria-hidden="true">→</span></button>
-              <p class="form-note">Complete the hCaptcha check before sending. Your message is delivered through Web3Forms to the recipient configured for your access key.</p>
-              <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
-            </form>
+                <button class="button" type="submit">Send enquiry <span aria-hidden="true">→</span></button>
+                <p class="form-note">Complete the hCaptcha check before sending. Your message is delivered through Web3Forms to the recipient configured for your access key.</p>
+                <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+              </form>
+            </div>
+            <div class="contact-success hidden" id="contact-success" role="status" aria-live="polite" tabindex="-1">
+              <span class="success-icon" aria-hidden="true">✓</span>
+              <h3>Thanks — your enquiry has been sent. We’ll be in touch soon.</h3>
+            </div>
           </div>
         </div>
       </section>
@@ -581,6 +591,9 @@
       const enquiryForm = document.querySelector("#enquiry-form");
       const submitButton = enquiryForm.querySelector('button[type="submit"]');
       const formStatus = document.querySelector("#form-status");
+      const contactPanel = document.querySelector("#contact-form");
+      const contactFormContent = document.querySelector("#contact-form-content");
+      const contactSuccess = document.querySelector("#contact-success");
 
       enquiryForm.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -607,9 +620,11 @@
             formStatus.textContent = result.message || "We couldn’t send your enquiry. Please try again shortly.";
             return;
           }
-          enquiryForm.reset();
-          if (window.hcaptcha) window.hcaptcha.reset();
-          formStatus.textContent = "Thanks — your enquiry has been sent. We’ll be in touch soon.";
+          formStatus.textContent = "";
+          contactFormContent.classList.add("hidden");
+          contactPanel.classList.add("is-success");
+          contactSuccess.classList.remove("hidden");
+          contactSuccess.focus();
         } catch (error) {
           formStatus.textContent = "We couldn’t connect to the form service. Please check your connection and try again.";
         } finally {
