@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#f8faff">
     <meta name="description" content="NeuronZ Limited makes websites and IT simpler for small businesses. London-based, straightforward, and built around your needs.">
     <title>NeuronZ Limited | Websites &amp; IT that just work</title>
+    <link rel="icon" type="image/png" sizes="64x64" href="assets/neuronz-favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -28,7 +29,7 @@
       }
 
       * { box-sizing: border-box; }
-      html { scroll-behavior: smooth; scroll-padding-top: 90px; }
+      html { scroll-behavior: smooth; scroll-padding-top: 78px; }
       body {
         margin: 0;
         color: var(--ink);
@@ -49,9 +50,9 @@
         background: rgb(248 250 255 / 91%);
         backdrop-filter: blur(14px);
       }
-      .nav { height: 86px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+      .nav { height: 74px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
       .brand { display: inline-flex; align-items: center; }
-      .brand img { display: block; width: 112px; height: auto; }
+      .brand img { display: block; width: 100px; height: auto; }
       .nav-links { display: flex; align-items: center; gap: 32px; color: #3c4043; font-size: 14px; font-weight: 600; }
       .nav-links a:hover, .text-link:hover { color: var(--blue); }
       .button {
@@ -231,11 +232,12 @@
       }
       @media (max-width: 700px) {
         .container { width: min(100% - 34px, 540px); }
-        .nav { height: 72px; }
-        .brand img { width: 92px; }
+        html { scroll-padding-top: 68px; }
+        .nav { height: 64px; }
+        .brand img { width: 82px; }
         .menu-toggle { display: grid; place-items: center; }
         .nav > .button { display: none; }
-        .nav-links { position: absolute; top: 71px; right: 0; left: 0; display: none; flex-direction: column; align-items: stretch; gap: 0; padding: 8px 24px 18px; border-bottom: 1px solid var(--line); background: var(--page); }
+        .nav-links { position: absolute; top: 63px; right: 0; left: 0; display: none; flex-direction: column; align-items: stretch; gap: 0; padding: 8px 24px 18px; border-bottom: 1px solid var(--line); background: var(--page); }
         .nav-links.open { display: flex; }
         .nav-links a { padding: 13px 0; }
         .hero { padding: 55px 0 35px; }
@@ -513,7 +515,7 @@
             <h2>What can we help you with?</h2>
             <p>Ready to get your website online or need a hand with your IT setup? Tell us a little about your business and what you have in mind.</p>
             <div class="contact-details">
-              <div class="detail"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg></span><span><small>Email</small><a href="mailto:mathew.joseph@neuronz.co.uk">mathew.joseph@neuronz.co.uk</a></span></div>
+              <div class="detail"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg></span><span><small>Email</small><a href="mailto:jane.smith@example.com">mathew.joseph@neuronz.co.uk</a></span></div>
               <div class="detail"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg></span><span><small>Location</small>London, United Kingdom</span></div>
             </div>
           </div>
@@ -527,8 +529,8 @@
                 <input type="hidden" name="from_name" value="NeuronZ Limited website">
                 <input type="checkbox" name="botcheck" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true">
                 <div class="form-grid">
-                  <div class="field"><label for="name">Your name</label><input id="name" name="name" autocomplete="name" required placeholder="Mathew Joseph"></div>
-                  <div class="field"><label for="email">Your email</label><input id="email" name="email" type="email" autocomplete="email" required placeholder="mathew.joseph@neuronz.co.uk"></div>
+                  <div class="field"><label for="name">Your name</label><input id="name" name="name" autocomplete="name" required placeholder="Jane Smith"></div>
+                  <div class="field"><label for="email">Your email</label><input id="email" name="email" type="email" autocomplete="email" required placeholder="jane.smith@example.com"></div>
                   <div class="field full"><label for="message">How can we help?</label><textarea id="message" name="message" required placeholder="I’m interested in the £500 website offer..."></textarea></div>
                   <div class="field full">
                     <label>Spam protection</label>
