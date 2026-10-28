@@ -7,6 +7,111 @@
     <meta name="description" content="NeuronZ Limited makes websites and IT simpler for small businesses. London-based, straightforward, and built around your needs.">
     <title>NeuronZ Limited | Websites &amp; IT that just work</title>
     <link rel="icon" type="image/png" sizes="64x64" href="assets/neuronz-favicon.png">
+    <script>
+      (() => {
+        const storageKey = "neuronz-theme-override";
+        const root = document.documentElement;
+        const themeColor = document.querySelector('meta[name="theme-color"]');
+        let override = readOverride();
+        let transitionTimer;
+
+        function readOverride() {
+          let stored;
+          try {
+            stored = localStorage.getItem(storageKey);
+          } catch (error) {
+            console.warn("Unable to read the saved theme preference.", error);
+            return null;
+          }
+          if (!stored) return null;
+          try {
+            const value = JSON.parse(stored);
+            if (typeof value.dark === "boolean" && Number.isFinite(value.until) && value.until > Date.now()) {
+              return value;
+            }
+          } catch (error) {
+            console.warn("Unable to parse the saved theme preference.", error);
+          }
+          clearOverride();
+          return null;
+        }
+
+        function clearOverride() {
+          try {
+            localStorage.removeItem(storageKey);
+          } catch (error) {
+            console.warn("Unable to clear the saved theme preference.", error);
+          }
+        }
+
+        function getNextTransition(now = new Date()) {
+          const next = new Date(now);
+          if (now.getHours() < 6) {
+            next.setHours(6, 0, 0, 0);
+          } else if (now.getHours() < 18) {
+            next.setHours(18, 0, 0, 0);
+          } else {
+            next.setDate(next.getDate() + 1);
+            next.setHours(6, 0, 0, 0);
+          }
+          return next;
+        }
+
+        function isScheduledDark(now = new Date()) {
+          return now.getHours() >= 18 || now.getHours() < 6;
+        }
+
+        function applyTheme(dark) {
+          root.dataset.theme = dark ? "dark" : "light";
+          themeColor.content = dark ? "#101925" : "#f8faff";
+          const toggle = document.querySelector("#theme-toggle");
+          if (toggle) toggle.setAttribute("aria-checked", String(dark));
+        }
+
+        function refreshTheme() {
+          const now = new Date();
+          if (override && override.until <= now.getTime()) {
+            override = null;
+            clearOverride();
+          }
+          applyTheme(override ? override.dark : isScheduledDark(now));
+          clearTimeout(transitionTimer);
+          transitionTimer = setTimeout(refreshTheme, getNextTransition(now).getTime() - now.getTime());
+        }
+
+        refreshTheme();
+
+        document.addEventListener("DOMContentLoaded", () => {
+          const toggle = document.querySelector("#theme-toggle");
+          toggle.addEventListener("click", () => {
+            override = {
+              dark: root.dataset.theme !== "dark",
+              until: getNextTransition().getTime()
+            };
+            try {
+              localStorage.setItem(storageKey, JSON.stringify(override));
+            } catch (error) {
+              console.warn("Unable to save the theme preference.", error);
+            }
+            refreshTheme();
+          });
+          refreshTheme();
+        });
+
+        window.addEventListener("storage", (event) => {
+          if (event.key === storageKey) {
+            override = readOverride();
+            refreshTheme();
+          }
+        });
+        document.addEventListener("visibilitychange", () => {
+          if (!document.hidden) {
+            override = readOverride();
+            refreshTheme();
+          }
+        });
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -50,11 +155,28 @@
         background: rgb(248 250 255 / 91%);
         backdrop-filter: blur(14px);
       }
-      .nav { height: 74px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+      .nav { height: 74px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
       .brand { display: inline-flex; align-items: center; }
       .brand img { display: block; width: 100px; height: auto; }
       .nav-links { display: flex; align-items: center; gap: 32px; color: #3c4043; font-size: 14px; font-weight: 600; }
       .nav-links a:hover, .text-link:hover { color: var(--blue); }
+      .nav-actions { display: flex; align-items: center; gap: 14px; }
+      .theme-toggle {
+        position: relative; width: 58px; height: 34px; flex: 0 0 auto; padding: 0;
+        border: 1px solid #cbd3df; border-radius: 999px; background: #e5e9f0; cursor: pointer;
+        transition: background .2s ease, border-color .2s ease;
+      }
+      .theme-toggle:focus-visible { outline: 3px solid rgb(26 115 232 / 35%); outline-offset: 3px; }
+      .theme-toggle-track { position: absolute; inset: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 7px; color: #69778c; }
+      .theme-toggle-track svg { width: 13px; height: 13px; }
+      .theme-toggle-thumb {
+        position: absolute; top: 4px; left: 4px; width: 24px; height: 24px; border-radius: 50%;
+        background: white; box-shadow: 0 1px 4px rgb(23 35 52 / 28%);
+        transition: transform .2s ease, background .2s ease;
+      }
+      .theme-toggle[aria-checked="true"] { border-color: #31527a; background: #263a55; }
+      .theme-toggle[aria-checked="true"] .theme-toggle-track { color: #9fb9dc; }
+      .theme-toggle[aria-checked="true"] .theme-toggle-thumb { transform: translateX(24px); background: #dce8f8; }
       .button {
         display: inline-flex; min-height: 48px; align-items: center; justify-content: center; gap: 9px;
         padding: 0 21px; border: 0; border-radius: 999px; color: white; background: var(--blue);
@@ -220,6 +342,66 @@
       .legal-grid h2 { margin: 0 0 6px; color: #eceff1; font: 600 12px "DM Sans", sans-serif; letter-spacing: 0; }
       .legal-grid p { margin: 0; color: #9aa0a6; font-size: 10px; line-height: 1.65; }
 
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --ink: #e8edf5;
+        --muted: #aab6c6;
+        --blue: #8ab4f8;
+        --blue-dark: #a7c7fa;
+        --blue-pale: #1d3552;
+        --green: #81d6a0;
+        --yellow: #f5c46b;
+        --red: #ff938b;
+        --line: #2b394c;
+        --surface: #1a2636;
+        --page: #101925;
+        --shadow: 0 12px 40px rgb(0 0 0 / 28%);
+      }
+      :root[data-theme="dark"] body { background: var(--page); }
+      :root[data-theme="dark"] .topbar { border-color: #2b394c; background: rgb(16 25 37 / 92%); }
+      :root[data-theme="dark"] .nav-links { color: #dce5f1; }
+      :root[data-theme="dark"] .button { color: #102038; }
+      :root[data-theme="dark"] .button:hover { background: var(--blue-dark); }
+      :root[data-theme="dark"] .button.secondary { color: var(--blue); border-color: #3a506d; background: var(--surface); }
+      :root[data-theme="dark"] .button.secondary:hover { background: #22334a; }
+      :root[data-theme="dark"] .menu-toggle { color: var(--ink); border-color: var(--line); background: var(--surface); }
+      :root[data-theme="dark"] .brand img,
+      :root[data-theme="dark"] .footer-brand img,
+      :root[data-theme="dark"] .about-logo { filter: brightness(1.65); }
+      :root[data-theme="dark"] .hero::before { background: radial-gradient(circle, #1a2e48 0, rgb(26 46 72 / 0%) 70%); }
+      :root[data-theme="dark"] .visual-orb { background: #182b43; }
+      :root[data-theme="dark"] .dashboard,
+      :root[data-theme="dark"] .float-note,
+      :root[data-theme="dark"] .card,
+      :root[data-theme="dark"] .feature,
+      :root[data-theme="dark"] .service-card,
+      :root[data-theme="dark"] .price-card,
+      :root[data-theme="dark"] .contact-panel,
+      :root[data-theme="dark"] .about-label,
+      :root[data-theme="dark"] .field input,
+      :root[data-theme="dark"] .field textarea { color: var(--ink); border-color: var(--line); background: var(--surface); }
+      :root[data-theme="dark"] .dash-tile { border-color: var(--line); }
+      :root[data-theme="dark"] .dash-tile:nth-child(2) i,
+      :root[data-theme="dark"] .value .check,
+      :root[data-theme="dark"] .contact-success .success-icon { color: var(--green); background: #1d3b32; }
+      :root[data-theme="dark"] .dash-tile:nth-child(3) i { color: #f5c46b; background: #413622; }
+      :root[data-theme="dark"] .section.white { background: #131f2e; }
+      :root[data-theme="dark"] .section.white .card { background: var(--surface); }
+      :root[data-theme="dark"] .icon.green { color: var(--green); background: #1d3b32; }
+      :root[data-theme="dark"] .icon.yellow { color: #f5c46b; background: #413622; }
+      :root[data-theme="dark"] .icon.red { color: var(--red); background: #402b32; }
+      :root[data-theme="dark"] .feature span:last-child,
+      :root[data-theme="dark"] .list li,
+      :root[data-theme="dark"] .chip,
+      :root[data-theme="dark"] .field label { color: #dce5f1; }
+      :root[data-theme="dark"] .chip { background: #26364a; }
+      :root[data-theme="dark"] .about-art { background: #182b43; }
+      :root[data-theme="dark"] .about-art::before,
+      :root[data-theme="dark"] .about-art::after { border-color: #34506f; }
+      :root[data-theme="dark"] .contact-panel .button { color: #102038; }
+      :root[data-theme="dark"] .field input::placeholder,
+      :root[data-theme="dark"] .field textarea::placeholder { color: #8492a5; }
+
       @media (max-width: 900px) {
         .hero-grid { gap: 20px; }
         .visual { min-height: 360px; }
@@ -236,7 +418,8 @@
         .nav { height: 64px; }
         .brand img { width: 82px; }
         .menu-toggle { display: grid; place-items: center; }
-        .nav > .button { display: none; }
+        .nav-actions { gap: 10px; }
+        .nav-actions > .button { display: none; }
         .nav-links { position: absolute; top: 63px; right: 0; left: 0; display: none; flex-direction: column; align-items: stretch; gap: 0; padding: 8px 24px 18px; border-bottom: 1px solid var(--line); background: var(--page); }
         .nav-links.open { display: flex; }
         .nav-links a { padding: 13px 0; }
@@ -288,10 +471,19 @@
           <a href="#about">About</a>
           <a href="#contact">Contact</a>
         </nav>
-        <a class="button" href="#contact">Let’s talk <span aria-hidden="true">↗</span></a>
-        <button class="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="navigation">
-          <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-        </button>
+        <div class="nav-actions">
+          <a class="button" href="#contact">Let’s talk <span aria-hidden="true">↗</span></a>
+          <button class="theme-toggle" id="theme-toggle" type="button" role="switch" aria-label="Dark theme; automatic from 6 PM to 6 AM" aria-checked="false" title="Automatic dark theme from 6 PM to 6 AM; manual changes last until the next transition">
+            <span class="theme-toggle-track" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/><path d="m17 3 1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2Z"/></svg>
+            </span>
+            <span class="theme-toggle-thumb"></span>
+          </button>
+          <button class="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="navigation">
+            <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+          </button>
+        </div>
       </div>
     </header>
 
